@@ -36,39 +36,42 @@ class ImageClassification:
 
         return self.imagenet_class_index[predicted_idx]
 
+    def get_result(self, data, is_api=False):
+        starttime = datetime.now()
+        img_bytes = data.file.read()
+
+        class_id, class_name = self.get_prediction(img_bytes)
+
+        endtime = datetime.now()
+        time_diff = (endtime - starttime)
+
+        executiontime = f"{round(time_diff.total_seconds() * 1000)} ms"
+
+        encoded_string = base64.b64encode(img_bytes)
+        bs64 = encoded_string.decode('utf-8')
+        img_data = f"data:image/jpeg;base64,{bs64}"
+
+        result = {
+            'inference_time': executiontime,
+            'predictions': {
+                'class_id': class_id,
+                'class_name': class_name
+            }
+        }
+
+        if not is_api:
+            result['image_data'] = img_data
+
+        return result
+
     def router_api(self):
         from fastapi import APIRouter, UploadFile, File, Request
         api = APIRouter(prefix="/face_classification")
 
         @api.post("/face_classify/predict")
         async def generate_output(
-                data: UploadFile = File(...), is_api=False
+                data: UploadFile = File(...)
         ):
-            starttime = datetime.now()
-            img_bytes = data.file.read()
-
-            class_id, class_name = self.get_prediction(img_bytes)
-
-            endtime = datetime.now()
-            time_diff = (endtime - starttime)
-
-            executiontime = f"{round(time_diff.total_seconds() * 1000)} ms"
-
-            encoded_string = base64.b64encode(img_bytes)
-            bs64 = encoded_string.decode('utf-8')
-            img_data = f"data:image/jpeg;base64,{bs64}"
-
-            result = {
-                'inference_time': executiontime,
-                'predictions': {
-                    'class_id': class_id,
-                    'class_name': class_name
-                }
-            }
-
-            if not is_api:
-                result['img_data'] = img_data
-
-            return result
+            return self.get_result(data, is_api=True)
 
         return api
