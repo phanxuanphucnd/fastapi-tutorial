@@ -12,7 +12,18 @@ from fastapi.staticfiles import StaticFiles
 
 #TODO: Initialize
 app = FastAPI()
+
 image_classification = ImageClassification()
+
+@app.get('/favicon.ico')
+async def favicon():
+    return FileResponse('static/icons/icon.png')
+
+@app.get("/")
+async def index():
+    return {
+        "text": f"This is the API server. Version: v0.0.1"
+    }
 
 origins = ['*']
 

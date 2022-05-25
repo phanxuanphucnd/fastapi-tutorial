@@ -11,7 +11,7 @@ from PIL import Image
 from datetime import datetime
 
 class ImageClassification:
-    def __int__(self):
+    def __init__(self):
         # model
         self.model = models.densenet121(pretrained=True)
         self.model.eval()
@@ -68,7 +68,7 @@ class ImageClassification:
         from fastapi import APIRouter, UploadFile, File, Request
         api = APIRouter(prefix="/face_classification")
 
-        @api.post("/face_classify/predict")
+        @api.post("/predict")
         async def generate_output(
                 data: UploadFile = File(...)
         ):
