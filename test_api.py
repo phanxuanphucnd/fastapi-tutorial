@@ -17,8 +17,8 @@ def test_predict_route():
     file_name = 'data/dog.jpg'
 
     response = client.post(
-        "/face_classify/predict", files={"file": ("dog_image", open(file_name, "rb"), "image/jpeg")}
+        "/face_classification/predict", files={"data": ("dog_image", open(file_name, "rb"), "image/jpeg")}
     )
-    print(response.status_code)
+    print(response.text)
 
 test_predict_route()
